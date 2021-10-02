@@ -1,13 +1,52 @@
 const path = require('path')
 const express = require('express')
+const hbs = require('hbs')
 
 // console.log(__dirname)
 // console.log(path.join(__dirname, '../public'))
 
 const app = express()
 
+//define paths for express config.
+const publicDirectoryPath = path.join(__dirname, '../public')
+const viewsPath = path.join(__dirname, '../templates/views')
+const partialsPath = path.join(__dirname, '../templates/partials')
+
 // making sure that index.html is loaded in the root.
-app.use(express.static(path.join(__dirname, '../public')))
+// setup static directory to serve.
+app.use(express.static(publicDirectoryPath))
+
+// setup handle bars views and engine.
+// set a value for a given express value key value pairs.
+// getting handlebars set up.
+app.set('view engine', 'hbs')
+// changing the default views directory to our choosing.
+app.set('views', viewsPath)
+hbs.registerPartials(partialsPath)
+
+//in order to use the view engine we only need to provide it with the name of the file without an extention
+// since it knows to look for it in the views directory (this is hard coded)
+app.get('', (req, res) => {
+    res.render('index', {
+        title: "Weather",
+        name: "Roy Hevrony"
+    })
+})
+
+app.get('/about', (req, res) => {
+    res.render('about', {
+        title: "About Me",
+        name: "Roy Hevrony"
+    })
+})
+
+app.get('/help', (req, res) => {
+    res.render('help',{
+        description: "This is a help page for anyone who needs it.",
+        title: "Help",
+        name: "Roy Hevrony"
+    })
+})
 
 app.get('/weather', (req, res) => {
     res.send({
@@ -15,6 +54,21 @@ app.get('/weather', (req, res) => {
         feelslike: 28,
         description: "partly cloudy",
         location: "Los Angeles"
+    })
+})
+
+app.get('/help/*', (req, res) => {
+    res.render('404', {
+        name: "Roy Hevrony",
+        title: "404",
+        errorMessage: 'Help article not found.'
+    })
+})
+app.get('*', (req, res) => {
+    res.render('404', {
+        name: "Roy Hevrony",
+        title: "404",
+        errorMessage: "Page not found."
     })
 })
 app.listen(3000, () => {
